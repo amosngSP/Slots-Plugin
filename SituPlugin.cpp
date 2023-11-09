@@ -3,9 +3,10 @@
 #include "CSiTRadar.h"
 #include "json.hpp"
 #include "vatsimAPI.h"
+#include <libloaderapi.h>
 
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 using json = nlohmann::json;
-
 const int TAG_ITEM_CTP_SLOT = 5000;
 const int TAG_ITEM_CTP_CTOT = 5001;
 const int TAG_ITEM_NAT_STATUS = 5002;
@@ -38,8 +39,14 @@ SituPlugin::SituPlugin()
     CSiTRadar::eventCode = "Enter Code";
 
     try {
+        char DllPathFile[_MAX_PATH];
+        std::string RCPath;
+        GetModuleFileNameA(HINSTANCE(&__ImageBase), DllPathFile, sizeof(DllPathFile));
+        RCPath = DllPathFile;
+        RCPath.resize(RCPath.size() - strlen("VATCANBookings.dll"));
+        RCPath += "vatcan_bookings.json";
 
-        std::ifstream settings_file(".\\vatcan_bookings.json");
+        std::ifstream settings_file(RCPath);
         if (settings_file.is_open()) {
             json j = json::parse(settings_file);
 
